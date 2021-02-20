@@ -1,8 +1,10 @@
-@import url(https://fonts.googleapis.com/css?family=Montserrat:400,700);
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&display=swap');
 
 body {
   background: #fff;
-  font: normal 16px/24px "Montserrat", "Helvetica Neue", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 16px;
 }
 
 .repoList {
@@ -16,12 +18,17 @@ body {
   font-weight: bold;
   color: #444;
   border-bottom: 1px solid;
+  margin-bottom: 3px;
 }
 
 .prList {
   list-style-type: none;
   padding-inline-start: 0px;
-  color: #0f0;
+  margin: 0px;
+}
+
+.prlist li + li {
+  padding-top: 5px;
 }
 
 .prGrid {
@@ -33,10 +40,42 @@ body {
   font-family: monospace;
   font-size: 80%;
   font-weight: bold;
+  padding-right: 4px;
 }
 
 .prTitle {
 }
 
 .prStatus {
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 16px;
 }
+
+.prChecks {
+  display: flex;
+  align-items: center;
+  height: 20px;
+  font-size: 80%;
+}
+
+.checkName {
+  display: inline-block;
+  font-size: 80%;
+  border: 1px #555 solid;
+  color: #555;
+  border-radius: 5px;
+  padding: 1px 3px 1px 3px;
+  margin-right: 2px;
+  margin-left: 5px;
+}
+
+.checkIcon {
+  width: 16px;
+  height: 16px;
+  margin-right: 1px;
+}
+
+.iconUnknown { background-image: url(/static/img/question.svg); }
+.iconFailure { background-image: url(/static/img/failure.svg); }
+.iconSuccess { background-image: url(/static/img/success.svg); }

@@ -11,7 +11,7 @@ app.config["DEBUG"] = True
 gh = Github(os.getenv("GITHUB_TOKEN"))
 
 # Set up a stage map to allow us to condense a set of checks (named, e.g., after their Azure displayName)
-stageMap = { "CQ": ".*Code Quality Checks.*", "B": ".*Build.*", "T": ".*Tests.*" }
+stageMap = { "QC": ".*Code Quality Checks.*", "Build": ".*Build.*", "Test": ".*Tests.*" }
 
 def getPRData(userRepo, stageMap):
     """Get PR data for a specific user/repo"""
@@ -79,25 +79,62 @@ def prDataToHTML(prData, page, oneLiner):
     # Loop over PRs
     for pr in prData:
         # Reset variables
-        renderStatusChecks = True
+        showStatusChecks = True
+
+        # Start a new list item and grid
+        page.li()
+        page.div(class_="prGrid")
 
         # Header line (PR number, title, status)
-        html = oneLiner.div(f"#{pr['number']}", class_="prNumber")
-        html += oneLiner.div(pr['title'], class_="prTitle")
+        page.div(f"#{pr['number']}", class_="prNumber")
+        page.div(pr['title'], class_="prTitle")
         if not "conclusion" in pr:
-            html += oneLiner.div(class_="iconUnknown")
+            page.div("", class_="prStatus iconUnknown")
         elif pr['conclusion'] == "success":
-            html += oneLiner.div(class_="iconSuccess")
-            renderStatusChecks = False
+            page.div("", class_="prStatus iconSuccess")
+            showStatusChecks = False
         elif pr['conclusion'] == "failure":
-            html += oneLiner.div(class_="iconFailure")
+            page.div("", class_="prStatus iconFailure")
         elif pr['conclusion'] == "in_progress":
-            html += oneLiner.div(class_="iconInProgress")
+            page.div("", class_="prStatus iconInProgress")
+        else:
+            page.div("", class_="prStatus iconUnknown")
 
-        # The test # TODO:
+        # Status checks line
+        if showStatusChecks:
+            # Add on the first div (empty), and open the next one
+            page.div("", class_="checkBlank")
+            page.div(class_="prChecks")
 
-        # Add a list item
-        page.li(oneLiner.div(html, class_="prGrid"))
+            # Do we have checks to go through?
+            if "checks" in pr:
+                # Loop over checks
+                for check,results in pr["checks"].items():
+                    # Add stage indicator
+                    page.div(check, class_="checkName")
+
+                    # Draw check indicators in sequence
+                    for result in results:
+                        page.div(class_="checkStatusContainer")
+                        if result == "queued":
+                            page.img(src="static/img/queued.svg", class_="checkIcon")
+                        elif result == "in_progress":
+                            page.img(src="static/img/in_progress.svg", class_="checkIcon")
+                        elif result == "skipped":
+                            page.img(src="static/img/skipped.svg", class_="checkIcon")
+                        elif result == "success":
+                            page.img(src="static/img/success.svg", class_="checkIcon")
+                        elif result == "failure":
+                            page.img(src="static/img/failure.svg", class_="checkIcon")
+                        else:
+                            page.img(src="static/img/unknown.svg", class_="checkIcon")
+                        page.div.close()
+            else:
+                page.span("No checks have been run for this PR.", class_="checkStatus")
+
+        # Close our elements
+        page.div.close()
+        page.li.close()
 
     page.ul.close()
 
@@ -106,9 +143,8 @@ def prDataToHTML(prData, page, oneLiner):
 def home():
     prData = {}
     prData["disorderedmaterials/dissolve"] = getPRData("disorderedmaterials/dissolve", stageMap)
-    #prData["disorderedmaterials/dissolve"] = [{'number': 516, 'title': 'Protein force fields'}, {'number': 541, 'title': 'Tidy SpeciesIntra Base', 'conclusion': 'failure', 'checks': {'CQ': ['success', 'success', 'success'], 'B': ['failure', 'success', 'success', 'success']}}, {'number': 543, 'title': 'Move MasterIntra terms out of lists and into vectors.', 'conclusion': 'success', 'checks': {'CQ': ['success', 'success', 'success'], 'B': ['success', 'success', 'success', 'success'], 'T': ['success', 'success']}}, {'number': 550, 'title': 'UFF', 'conclusion': 'failure', 'checks': {'CQ': ['success', 'success', 'success'], 'B': ['success', 'success', 'success', 'success'], 'T': ['failure']}}]
+    #prData["disorderedmaterials/dissolve"] = [{'number': 516, 'title': 'Protein force fields'}, {'number': 541, 'title': 'Tidy SpeciesIntra Base', 'conclusion': 'failure', 'checks': {'QC': ['success', 'success', 'success'], 'B': ['failure', 'success', 'success', 'success']}}, {'number': 543, 'title': 'Move MasterIntra terms out of lists and into vectors.', 'conclusion': 'success', 'checks': {'CQ': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Tests': ['success', 'success']}}, {'number': 550, 'title': 'UFF', 'conclusion': 'failure', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Test': ['failure']}}]
     #print(prData)
-    items = ( "<div class='repoHeader'>projectdissolve/dissolve</div><ul class='prList'><li><div class='prGrid'><div class='prNumber'>#342</div><div class='prTitleg'>Alpha</div><div>TICK</div><div>GAP</div><div>information</div></div></li><li>Beta</li><li>Gamma</li></ul>", "<div class='repoHeader'>projectdissolve/jv2</div><ul class='prList'><li>Delta</li><li>Epsilon</li><li>Pi</li></ul>" )
 
     # Init the page
     ol = markup._oneliner()
