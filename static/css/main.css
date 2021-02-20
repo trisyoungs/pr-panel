@@ -1,72 +1,39 @@
 @import url(https://fonts.googleapis.com/css?family=Montserrat:400,700);
 
-ol, li, p, h4 {
-  margin: 0;
-}
-
 body {
-  background: #fbf10f;
-  max-width: 80%;
-  width: 500px;
-  margin: 40px auto;
+  background: #fff;
   font: normal 16px/24px "Montserrat", "Helvetica Neue", sans-serif;
 }
 
-h3 {
-  font-size: 1.65rem;
-  margin: 15px 0;
-  text-align: center;
-}
-
-ol {
-  counter-reset: section;
-}
-
-li { 
+.repoList {
   list-style-type: none;
-  position: relative;
-  font-size: 1.5rem;
-  padding: 15px;
-  margin-bottom: 15px;
-  background: #0e0fee;
-  color: #fff;
+  padding-inline-start: 0px;
+  padding: 2px;
 }
 
-h4 {
-  position: relative;
-  padding-bottom: 10px;
+.repoHeader {
+  font-size: 80%;
+  font-weight: bold;
+  color: #444;
+  border-bottom: 1px solid;
 }
 
-h4:after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 25px;
-  height: 2px;
-  background: white;
+.prList {
+  list-style-type: none;
+  padding-inline-start: 0px;
+  color: #0f0;
 }
 
-p {
-  font-size: .9rem; 
-  line-height: 1.4rem;
-  margin-top: 15px;
+.prGrid {
+  display: grid;
+  grid-template-columns: max-content auto max-content;
 }
 
-li::before {
-    counter-increment: section;
-    content: counter(section);
-    text-align: center;
-    display: inline-block;
-    color: #000;
-    border-radius: 50%;
-    position: absolute;
-    left: -65px;
-    top: 50%;
-    transform: translateY(-50%);
-    padding: 12px;
-    font-size: 2rem;
-    width: 25px;
-    height: 25px;
-    border: 2px solid #000;
+.prNumber {
+  font-family: monospace;
+  font-size: 80%;
+  font-weight: bold;
+}
+
+.prTitle {
 }

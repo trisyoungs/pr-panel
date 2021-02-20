@@ -21,26 +21,21 @@ stageMap = { "CQ": ".*Code Quality Checks.*", "B": ".*Build.*", "T": ".*Tests.*"
 def home():
     #prData = {}
     #prData["dissolve"] = prget.getPRData("disorderedmaterials/dissolve", stageMap)
-    items = ( "Item one", "Item two", "Item three", "Item four" )
-    paras = ( "This was a fantastic list.", "And now for something completely different." )
-    images = ( "thumb1.jpg", "thumb2.jpg", "more.jpg", "more2.jpg" )
+    prData = []
+    prData.append({'dissolve': [{'number': 516, 'title': 'Protein force fields'}, {'number': 541, 'title': 'Tidy SpeciesIntra Base', 'conclusion': 'failure', 'checks': {'CQ': ['success', 'success', 'success'], 'B': ['failure', 'success', 'success', 'success']}}, {'number': 543, 'title': 'Move MasterIntra terms out of lists and into vectors.', 'conclusion': 'success', 'checks': {'CQ': ['success', 'success', 'success'], 'B': ['success', 'success', 'success', 'success'], 'T': ['success', 'success']}}, {'number': 550, 'title': 'UFF', 'conclusion': 'failure', 'checks': {'CQ': ['success', 'success', 'success'], 'B': ['success', 'success', 'success', 'success'], 'T': ['failure']}}]})
+    print(prData)
+    items = ( "<div class='repoHeader'>projectdissolve/dissolve</div><ul class='prList'><li><div class='prGrid'><div class='prNumber'>#342</div><div class='prTitle'>Alpha</div><div>TICK</div><div>GAP</div><div>information</div></div></li><li>Beta</li><li>Gamma</li></ul>", "<div class='repoHeader'>projectdissolve/jv2</div><ul class='prList'><li>Delta</li><li>Epsilon</li><li>Pi</li></ul>" )
 
-    p = markup.page()
-    p.init( title="My title",
-               css=( 'one.css', 'two.css' ),
-               header="Something at the top",
-               footer="The bitter end." )
+    # Init the page
+    page = markup.page()
+    page.init( title="PR Panel", css=('static/css/main.css'))
 
-    p.ul( class_='mylist' )
-    p.li( items, class_='myitem' )
-    p.ul.close( )
+    # Loop over repos and construct a list
+    page.ul( class_='repoList' )
+    page.li( items, class_='' )
+    page.ul.close()
 
-    p.p( paras )
-    p.img( src=images, width=100, height=80, alt="Thumbnails" )
-
-    return str(p)
-    #print(p.html())
-    #return "<h1>SOME TEST SHITddd</h1><p>This site is a prototype API for distant reading of science fiction novels.</p>"
+    return str(page)
 
 # Run the app
 app.run()
