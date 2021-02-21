@@ -89,8 +89,14 @@ def prDataToHTML(prData, page, oneLiner):
         page.div(class_="prGrid")
 
         # Header line (PR number, title, status)
+        # -- Number
+        page.div(class_="prNumberContainer")
         page.div(f"#{pr['number']}", class_="prNumber")
+        page.div.close()
+        # -- Title
         page.div(pr['title'], class_="prTitle")
+        # -- Status Icon
+        page.div(class_="prStatusContainer")
         if not "conclusion" in pr:
             page.div("", class_="prStatus iconUnknown")
         elif pr['conclusion'] == "success":
@@ -102,6 +108,7 @@ def prDataToHTML(prData, page, oneLiner):
             page.div("", class_="prStatus iconInProgress")
         else:
             page.div("", class_="prStatus iconUnknown")
+        page.div.close()
 
         # Status checks line
         if showStatusChecks:

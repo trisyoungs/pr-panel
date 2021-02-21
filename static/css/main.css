@@ -4,7 +4,7 @@
 body {
   background: #fff;
   font-family: "IBM Plex Sans", sans-serif;
-  font-size: 16px;
+  font-size: 24px;
 }
 
 .repoList {
@@ -36,26 +36,39 @@ body {
   grid-template-columns: max-content auto max-content;
 }
 
-.prNumber {
+.prNumberContainer {
   font-family: monospace;
   font-size: 80%;
   font-weight: bold;
   padding-right: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.prNumber {
+  margin-top: auto;
 }
 
 .prTitle {
 }
 
+.prStatusContainer {
+  display: flex;
+  flex-direction: column;
+}
+
 .prStatus {
   background-size: contain;
   background-repeat: no-repeat;
-  width: 16px;
+  margin-top: auto;
+  height: 1.0em;
+  width: 1.0em;
 }
 
 .prChecks {
   display: flex;
   align-items: center;
-  height: 20px;
+  height: 1.0em;
   font-size: 80%;
 }
 
@@ -66,14 +79,14 @@ body {
   color: #555;
   border-radius: 5px;
   padding: 1px 3px 1px 3px;
-  margin-right: 2px;
+  margin-right: 0.25em;
   margin-left: 5px;
 }
 
 .checkIcon {
-  width: 16px;
-  height: 16px;
-  margin-right: 1px;
+  width: 1.0em;
+  height: 1.0em;
+  margin-right: 0.1em;
 }
 
 .iconUnknown { background-image: url(/static/img/question.svg); }
