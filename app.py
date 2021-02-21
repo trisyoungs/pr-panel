@@ -13,8 +13,11 @@ gh = Github(os.getenv("GITHUB_TOKEN"))
 # Set up a stage map to allow us to condense a set of checks (named, e.g., after their Azure displayName)
 stageMap = { "QC": ".*Code Quality Checks.*", "Build": ".*Build.*", "Test": ".*Tests.*" }
 
-def getPRData(userRepo, stageMap):
+def getPRData(userRepo, stageMap, test=False):
     """Get PR data for a specific user/repo"""
+    if test:
+        return [ {'number': 516, 'title': 'Protein force fields'}, {'number': 541, 'title': 'Tidy SpeciesIntra Base', 'conclusion': 'failure', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['failure', 'success', 'success', 'success']}}, {'number': 543, 'title': 'Move MasterIntra terms out of lists and into vectors.', 'conclusion': 'success', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Test': ['success', 'success']}}, {'number': 550, 'title': 'UFF', 'conclusion': 'failure', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Test': ['failure']}}]
+
     repo = None
     try:
         repo = gh.get_repo(userRepo)
@@ -142,9 +145,7 @@ def prDataToHTML(prData, page, oneLiner):
 @app.route('/', methods=['GET'])
 def home():
     prData = {}
-    prData["disorderedmaterials/dissolve"] = getPRData("disorderedmaterials/dissolve", stageMap)
-    #prData["disorderedmaterials/dissolve"] = [{'number': 516, 'title': 'Protein force fields'}, {'number': 541, 'title': 'Tidy SpeciesIntra Base', 'conclusion': 'failure', 'checks': {'QC': ['success', 'success', 'success'], 'B': ['failure', 'success', 'success', 'success']}}, {'number': 543, 'title': 'Move MasterIntra terms out of lists and into vectors.', 'conclusion': 'success', 'checks': {'CQ': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Tests': ['success', 'success']}}, {'number': 550, 'title': 'UFF', 'conclusion': 'failure', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Test': ['failure']}}]
-    #print(prData)
+    prData["disorderedmaterials/dissolve"] = getPRData("disorderedmaterials/dissolve", stageMap, True)
 
     # Init the page
     ol = markup._oneliner()
@@ -155,7 +156,6 @@ def home():
     for repoName,prs in prData.items():
         # Draw header
         page.div(repoName, class_="repoHeader")
-        print(prs)
         prDataToHTML(prs, page, ol)
 
     return str(page)
