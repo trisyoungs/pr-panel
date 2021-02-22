@@ -9,7 +9,7 @@ This is written with a Raspberry Pi Zero W plus small colour screen in mind, wit
 #### Required Python Modules
 
 ```
-pip3 install markuppy flask pygithub
+pip3 install markuppy flask pygithub toml
 ```
 
 #### Enable Chromium Autostart in Kiosk Mode

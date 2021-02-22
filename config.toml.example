@@ -1,0 +1,18 @@
+# GitHub Token
+token = "NOT_A_REAL_TOKEN"
+
+# Stage Recognition
+# Each 'key = value' pair is a regexp (the key) that matches one your stage names in the CI
+# The value is the short text that will be used to name the stage in the info display
+[[stage]]
+  re = ".*Code Quality Checks.*"
+  name = "QC"
+[[stage]]
+  re = ".*Build.*"
+  name = "Build"
+[[stage]]
+  re = ".*Tests.*"
+  name = "Test"
+#[[stage]]
+#  re = ""
+#  name = ""

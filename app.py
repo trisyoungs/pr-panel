@@ -1,6 +1,9 @@
-import flask, os, re
+import flask, re, toml
 from github import Github
 from MarkupPy import markup
+
+# Parse the configuration file
+config = toml.load('config.toml')
 
 # Create our Flask app
 app = flask.Flask(__name__)
@@ -8,12 +11,9 @@ app.config["DEBUG"] = True
 
 # Create a Github object with our personal access token which we take from an environment
 # variable named GITHUB_TOKEN
-gh = Github(os.getenv("GITHUB_TOKEN"))
+gh = Github(config['token'])
 
-# Set up a stage map to allow us to condense a set of checks (named, e.g., after their Azure displayName)
-stageMap = { "QC": ".*Code Quality Checks.*", "Build": ".*Build.*", "Test": ".*Tests.*" }
-
-def getPRData(userRepo, stageMap, test=False):
+def getPRData(userRepo, test=False):
     """Get PR data for a specific user/repo"""
     if test:
         return [ {'number': 516, 'title': 'Protein force fields'}, {'number': 541, 'title': 'Tidy SpeciesIntra Base', 'conclusion': 'failure', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['failure', 'success', 'success', 'success']}}, {'number': 543, 'title': 'Move MasterIntra terms out of lists and into vectors.', 'conclusion': 'success', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Test': ['success', 'success']}}, {'number': 550, 'title': 'UFF', 'conclusion': 'failure', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Test': ['failure']}}]
@@ -52,8 +52,8 @@ def getPRData(userRepo, stageMap, test=False):
             # Extract data from individual check runs
             for cr in cs.get_check_runs():
                 # Does this check run match any mapping in the stageMap?
-                for stageName,pattern in stageMap.items():
-                    if not re.match(pattern, cr.name):
+                for stage in config['stage']:
+                    if not re.match(stage['re'], cr.name):
                         continue
 
                     # What is the status / result of this stage?
@@ -63,10 +63,10 @@ def getPRData(userRepo, stageMap, test=False):
                         status = cr.conclusion
 
                     # Append this check run to our stage info
-                    if stageName in checksInfo:
-                        checksInfo[stageName].append(status)
+                    if stage['name'] in checksInfo:
+                        checksInfo[stage['name']].append(status)
                     else:
-                        checksInfo[stageName] = [ status ]
+                        checksInfo[stage['name']] = [ status ]
 
         # Add check run information to the list
         if checksInfo:
@@ -152,7 +152,7 @@ def prDataToHTML(prData, page, oneLiner):
 @app.route('/', methods=['GET'])
 def home():
     prData = {}
-    prData["disorderedmaterials/dissolve"] = getPRData("disorderedmaterials/dissolve", stageMap, True)
+    prData["disorderedmaterials/dissolve"] = getPRData("disorderedmaterials/dissolve", True)
 
     # Init the page
     ol = markup._oneliner()
