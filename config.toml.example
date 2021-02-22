@@ -1,5 +1,9 @@
-# GitHub Token
-token = "NOT_A_REAL_TOKEN"
+# GitHub Token - a personal access token with "no scope" (i.e. no special privileges)
+token = ""
+
+# Repo Targets
+[[repo]]
+  id = "user/repo"
 
 # Stage Recognition
 # Each 'key = value' pair is a regexp (the key) that matches one your stage names in the CI

@@ -23,7 +23,7 @@ def getPRData(userRepo, test=False):
         repo = gh.get_repo(userRepo)
     except:
         print(f"Couldn't retrieve repo data for '{userRepo}'.\n")
-        return
+        return []
 
     # Obtain PR info for this repo, and extract the info we want
     pulls = repo.get_pulls(state='open', sort='created', base='develop')
@@ -151,19 +151,25 @@ def prDataToHTML(prData, page, oneLiner):
 
 @app.route('/', methods=['GET'])
 def home():
-    prData = {}
-    prData["disorderedmaterials/dissolve"] = getPRData("disorderedmaterials/dissolve", True)
-
     # Init the page
     ol = markup._oneliner()
     page = markup.page()
     page.init( title="PR Panel", css=('static/css/main.css'))
 
-    # Loop over repos in the dict and generate html for its PRs
-    for repoName,prs in prData.items():
-        # Draw header
-        page.div(repoName, class_="repoHeader")
-        prDataToHTML(prs, page, ol)
+    # Loop over defined repos
+    for repo in config['repo']:
+        # Add header
+        page.div(repo['id'], class_="repoHeader")
+
+        # Get PR data for the repo
+        prs = []
+        try:
+            prs = getPRData(repo['id'])
+        except:
+            page.div("Failed to get PR info for this repo.")
+
+        if len(prs):
+            prDataToHTML(prs, page, ol)
 
     return str(page)
 
