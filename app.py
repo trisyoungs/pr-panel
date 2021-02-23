@@ -7,7 +7,7 @@ config = toml.load('config.toml')
 
 # Create our Flask app
 app = flask.Flask(__name__)
-app.config["DEBUG"] = True
+#app.config["DEBUG"] = True
 
 # Create a Github object with our personal access token which we take from an environment
 # variable named GITHUB_TOKEN
@@ -161,7 +161,7 @@ def home():
         # Get PR data for the repo
         prs = []
         try:
-            prs = getPRData(repo['id'], True)
+            prs = getPRData(repo['id'])
         except:
             with page.body().div():
                 page("Failed to get PR info for this repo.")
