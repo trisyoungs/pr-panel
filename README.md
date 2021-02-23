@@ -33,5 +33,5 @@ sudo crontab -e
 Add the line (adjusting the path to suit):
 
 ```
-@reboot python3 /home/pi/pr-panel/myscript.py
+@reboot /home/pi/pr-panel/launch.sh
 ```
