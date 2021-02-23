@@ -1,6 +1,7 @@
 import flask, re, toml
 from github import Github
 from airium import Airium
+from time import gmtime, strftime
 
 # Parse the configuration file and set some values
 config = toml.load('config.toml')
@@ -161,6 +162,8 @@ def home():
         # Add header
         with page.body().div(class_="repoHeader"):
             page(repo['id'])
+            with page.div(class_="repoTimeStamp"):
+                page(strftime("%H:%M", gmtime()))
 
         # Get PR data for the repo
         prs = []
