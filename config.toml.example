@@ -1,6 +1,9 @@
 # GitHub Token - a personal access token with "no scope" (i.e. no special privileges)
 token = ""
 
+# General Configuration
+refreshRate = 123
+
 # Repo Targets
 [[repo]]
   id = "user/repo"

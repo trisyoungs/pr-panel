@@ -2,8 +2,12 @@ import flask, re, toml
 from github import Github
 from airium import Airium
 
-# Parse the configuration file
+# Parse the configuration file and set some values
 config = toml.load('config.toml')
+# -- Page autorefresh rate (in seconds)
+refreshRate = 300
+if 'refreshRate' in config:
+    refreshRate = config['refreshRate']
 
 # Create our Flask app
 app = flask.Flask(__name__)
@@ -150,7 +154,7 @@ def home():
         with page.head():
             page.title("PR Panel")
             page.link(rel="stylesheet", href='static/css/main.css')
-            page.meta(http_equiv="refresh", content="120")
+            page.meta(http_equiv="refresh", content=refreshRate)
 
     # Loop over defined repos
     for repo in config['repo']:
