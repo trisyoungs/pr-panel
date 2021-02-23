@@ -1,6 +1,6 @@
 import flask, re, toml
 from github import Github
-from MarkupPy import markup
+from airium import Airium
 
 # Parse the configuration file
 config = toml.load('config.toml')
@@ -26,7 +26,7 @@ def getPRData(userRepo, test=False):
         return []
 
     # Obtain PR info for this repo, and extract the info we want
-    pulls = repo.get_pulls(state='open', sort='created', base='develop')
+    pulls = repo.get_pulls(state='open', sort='created', direction='asc', base='develop')
 
     # If there are no open PRs, can exit now without appending anything to the list
     if len(list(pulls)) == 0:
@@ -75,103 +75,105 @@ def getPRData(userRepo, test=False):
 
     return prInfo
 
-def prDataToHTML(prData, page, oneLiner):
+def prDataToHTML(prData, page):
     # Start a list for the active PRs in this repo
-    page.ul(class_="prList")
+    with page.body().ul(class_="prList"):
 
-    # Loop over PRs
-    for pr in prData:
-        # Reset variables
-        showStatusChecks = True
+        # Loop over PRs
+        for pr in prData:
+            # Reset variables
+            showStatusChecks = True
 
-        # Start a new list item and grid
-        page.li()
-        page.div(class_="prGrid")
+            # Start a new list item and grid
+            with page.li().div(class_="prGrid"):
 
-        # Header line (PR number, title, status)
-        # -- Number
-        page.div(class_="prNumberContainer")
-        page.div(f"#{pr['number']}", class_="prNumber")
-        page.div.close()
-        # -- Title
-        page.div(pr['title'], class_="prTitle")
-        # -- Status Icon
-        page.div(class_="prStatusContainer")
-        if not "conclusion" in pr:
-            page.div("", class_="prStatus iconUnknown")
-        elif pr['conclusion'] == "success":
-            page.div("", class_="prStatus iconSuccess")
-            showStatusChecks = False
-        elif pr['conclusion'] == "failure":
-            page.div("", class_="prStatus iconFailure")
-        elif pr['conclusion'] == "in_progress":
-            page.div("", class_="prStatus iconInProgress")
-        else:
-            page.div("", class_="prStatus iconUnknown")
-        page.div.close()
+                # Header line (PR number, title, status)
+                # -- Number
+                with page.div(class_="prNumberContainer").div(class_="prNumber"):
+                    page(f"#{pr['number']}")
 
-        # Status checks line
-        if showStatusChecks:
-            # Add on the first div (empty), and open the next one
-            page.div("", class_="checkBlank")
-            page.div(class_="prChecks")
+                # -- Title
+                with page.div(class_="prTitle"):
+                    page(pr['title'])
 
-            # Do we have checks to go through?
-            if "checks" in pr:
-                # Loop over checks
-                for check,results in pr["checks"].items():
-                    # Add stage indicator
-                    page.div(check, class_="checkName")
+                # -- Status Icon
+                if not "conclusion" in pr:
+                    page.div(class_="prStatusContainer").div(class_="prStatus iconUnknown")
+                elif pr['conclusion'] == "success":
+                    page.div(class_="prStatusContainer").div(class_="prStatus iconSuccess")
+                    showStatusChecks = False
+                elif pr['conclusion'] == "failure":
+                    page.div(class_="prStatusContainer").div(class_="prStatus iconFailure")
+                elif pr['conclusion'] == "in_progress":
+                    page.div(class_="prStatusContainer").div(class_="prStatus iconInProgress")
+                else:
+                    page.div(class_="prStatusContainer").div(class_="prStatus iconUnknown")
 
-                    # Draw check indicators in sequence
-                    for result in results:
-                        page.div(class_="checkStatusContainer")
-                        if result == "queued":
-                            page.img(src="static/img/queued.svg", class_="checkIcon")
-                        elif result == "in_progress":
-                            page.img(src="static/img/in_progress.svg", class_="checkIcon")
-                        elif result == "skipped":
-                            page.img(src="static/img/skipped.svg", class_="checkIcon")
-                        elif result == "success":
-                            page.img(src="static/img/success.svg", class_="checkIcon")
-                        elif result == "failure":
-                            page.img(src="static/img/failure.svg", class_="checkIcon")
+                # Status checks line
+                if showStatusChecks:
+                    # Add on the first div (empty), and open the next one
+                    page.div(class_="checkBlank")
+                    with page.div(class_="prChecks"):
+                        # Do we have checks to go through?
+                        if "checks" in pr:
+                            # Loop over checks
+                            for check,results in pr["checks"].items():
+                                # Add stage indicator
+                                with page.div(class_="checkName"):
+                                    page(check)
+
+                                # Draw check indicators in sequence
+                                for result in results:
+                                    with page.div(class_="checkStatusContainer"):
+                                        if result == "queued":
+                                            page.img(src="static/img/queued.svg", class_="checkIcon")
+                                        elif result == "in_progress":
+                                            page.img(src="static/img/in_progress.svg", class_="checkIcon")
+                                        elif result == "skipped":
+                                            page.img(src="static/img/skipped.svg", class_="checkIcon")
+                                        elif result == "success":
+                                            page.img(src="static/img/success.svg", class_="checkIcon")
+                                        elif result == "failure":
+                                            page.img(src="static/img/failure.svg", class_="checkIcon")
+                                        else:
+                                            page.img(src="static/img/unknown.svg", class_="checkIcon")
                         else:
-                            page.img(src="static/img/unknown.svg", class_="checkIcon")
-                        page.div.close()
-            else:
-                page.span("No checks have been run for this PR.", class_="checkStatus")
-
-        # Close our elements
-        page.div.close()
-        page.li.close()
-
-    page.ul.close()
-
+                            with page.div(class_="checkStatus"):
+                                page("No checks have been run for this PR.")
 
 @app.route('/', methods=['GET'])
 def home():
-    # Init the page
-    ol = markup._oneliner()
-    page = markup.page()
-    page.init( title="PR Panel", css=('static/css/main.css'))
+    # Set up the page
+    page = Airium()
+    page('<!DOCTYPE html>')
+    with page.html():
+        with page.head():
+            page.title("PR Panel")
+            page.link(rel="stylesheet", href='static/css/main.css')
+            page.meta(http_equiv="refresh", content="120")
 
     # Loop over defined repos
     for repo in config['repo']:
         # Add header
-        page.div(repo['id'], class_="repoHeader")
+        with page.body().div(class_="repoHeader"):
+            page(repo['id'])
 
         # Get PR data for the repo
         prs = []
         try:
-            prs = getPRData(repo['id'])
+            prs = getPRData(repo['id'], True)
         except:
-            page.div("Failed to get PR info for this repo.")
+            with page.body().div():
+                page("Failed to get PR info for this repo.")
 
         if len(prs):
-            prDataToHTML(prs, page, ol)
+            prDataToHTML(prs, page)
 
-    return str(page)
+    # Need to tweak the generated html slightly to change the string "http_equiv" to "http-equiv" - we couldn't
+    # do this earlier as the '-' is interpreted as a minus in the key.
+    html = str(page).replace("http_equiv", "http-equiv")
+
+    return html
 
 # Run the app
 app.run()

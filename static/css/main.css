@@ -83,10 +83,16 @@ body {
   margin-left: 5px;
 }
 
+.checkStatusContainer {
+  display: flex;
+  flex-direction: column;
+}
+
 .checkIcon {
   width: 1.0em;
   height: 1.0em;
   margin-right: 0.1em;
+  margin-top: auto;
 }
 
 .iconUnknown { background-image: url(/static/img/question.svg); }
