@@ -98,17 +98,18 @@ def prDataToHTML(prData, page):
                     page(pr['title'])
 
                 # -- Status Icon
-                if not "conclusion" in pr:
-                    page.div(class_="prStatusContainer").div(class_="prStatus iconUnknown")
-                elif pr['conclusion'] == "success":
-                    page.div(class_="prStatusContainer").div(class_="prStatus iconSuccess")
-                    showStatusChecks = False
-                elif pr['conclusion'] == "failure":
-                    page.div(class_="prStatusContainer").div(class_="prStatus iconFailure")
-                elif pr['conclusion'] == "in_progress":
-                    page.div(class_="prStatusContainer").div(class_="prStatus iconInProgress")
-                else:
-                    page.div(class_="prStatusContainer").div(class_="prStatus iconUnknown")
+                with page.div(class_="prStatusContainer"):
+                    if not "conclusion" in pr:
+                        page.img(src="static/img/unknown.svg", class_="prStatusIcon")
+                    elif pr['conclusion'] == "success":
+                        page.img(src="static/img/success.svg", class_="prStatusIcon")
+                        showStatusChecks = False
+                    elif pr['conclusion'] == "failure":
+                        page.img(src="static/img/failure.svg", class_="prStatusIcon")
+                    elif pr['conclusion'] == "in_progress":
+                        page.img(src="static/img/in_progress.svg", class_="prStatusIcon")
+                    else:
+                        page.div(class_="prStatusIcon iconUnknown")
 
                 # Status checks line
                 if showStatusChecks:

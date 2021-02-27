@@ -68,12 +68,11 @@ body {
   flex-direction: column;
 }
 
-.prStatus {
-  background-size: contain;
-  background-repeat: no-repeat;
-  margin-top: auto;
-  height: 1.0em;
+.prStatusIcon {
   width: 1.0em;
+  height: 1.0em;
+  margin-right: 0.1em;
+  margin-top: auto;
 }
 
 .prChecks {
@@ -105,7 +104,3 @@ body {
   margin-right: 0.1em;
   margin-top: auto;
 }
-
-.iconUnknown { background-image: url(/static/img/question.svg); }
-.iconFailure { background-image: url(/static/img/failure.svg); }
-.iconSuccess { background-image: url(/static/img/success.svg); }
