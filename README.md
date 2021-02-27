@@ -12,9 +12,10 @@ This is written with a Raspberry Pi Zero W plus small colour screen in mind, wit
 pip3 install airium flask pygithub toml
 ```
 
-#### Enable Chromium Autostart in Kiosk Mode
+#### Disable Power Management / Screensaver and Start Chromium
 
 Place the following in `/home/pi/.config/lxsession/LXDE-pi/autostart`
+
 ````
 @xset s off
 @xset -dpms
@@ -22,16 +23,26 @@ Place the following in `/home/pi/.config/lxsession/LXDE-pi/autostart`
 @chromium-browser --kiosk http://localhost:5000
 ````
 
-#### Run Script On Startup
+This will disable power management of the screen, prevent the screensaver from starting, and run the Chromium browser in kiosk mode, pointing it to the Flask server started by the `pr-panel` service.
 
-Easy via cron:
+#### Add Service to SystemD
 
-```
-sudo crontab -e
-```
+_Note that the following service script assumes that `pr-panel` is installed in `/opt/pr-panel`. If you have put is somewhere else, the `pr-panel.service` script needs to be modified accordingly._
 
-Add the line (adjusting the path to suit):
+Copy the script in the `pr-panel/services` directory to `/lib/systemd/system/`:
 
 ```
-@reboot /home/pi/pr-panel/launch.sh
+sudo cp services/pr-panel.service /lib/systemd/system/
 ```
+
+#### Enable the Service
+
+The `pr-panel.service` launches the python script to retrieve and serve the PR data (`pr-panel.service`). The script run by the service also auto-updates from the GitHub repo when it starts, to ensure that the code is the latest version available.
+
+```
+sudo systemctl enable pr-panel
+```
+
+#### Reboot
+
+A reboot should set everything up.
