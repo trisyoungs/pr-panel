@@ -21,6 +21,11 @@ body {
   margin-bottom: 3px;
 }
 
+.repoMessage {
+  font-size: 80%;
+  color: #aaa;
+}
+
 .repoTimeStamp {
   display: inline-block;
   float: right;

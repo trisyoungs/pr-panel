@@ -23,12 +23,8 @@ def getPRData(userRepo, test=False):
     if test:
         return [ {'number': 516, 'title': 'Protein force fields'}, {'number': 541, 'title': 'Tidy SpeciesIntra Base', 'conclusion': 'failure', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['failure', 'success', 'success', 'success']}}, {'number': 543, 'title': 'Move MasterIntra terms out of lists and into vectors.', 'conclusion': 'success', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Test': ['success', 'success']}}, {'number': 550, 'title': 'UFF', 'conclusion': 'failure', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Test': ['failure']}}]
 
-    repo = None
-    try:
-        repo = gh.get_repo(userRepo)
-    except:
-        print(f"Couldn't retrieve repo data for '{userRepo}'.\n")
-        return []
+    # Get the specified repo
+    repo = gh.get_repo(userRepo)
 
     # Obtain PR info for this repo, and extract the info we want
     pulls = repo.get_pulls(state='open', sort='created', direction='asc', base='develop')
@@ -148,6 +144,9 @@ def prDataToHTML(prData, page):
 
 @app.route('/', methods=['GET'])
 def home():
+    # Set some vars
+    rate = refreshRate
+
     # Set up the page
     page = Airium()
     page('<!DOCTYPE html>')
@@ -155,30 +154,42 @@ def home():
         with page.head():
             page.title("PR Panel")
             page.link(rel="stylesheet", href='static/css/main.css')
-            page.meta(http_equiv="refresh", content=refreshRate)
+            page.meta(http_equiv="refresh", content="REFRESHRATE")
 
     # Loop over defined repos
+    rr = refreshRate
     for repo in config['repo']:
+        # Get PR data for the repo
+        prs = []
+        failed = False
+        try:
+            prs = getPRData(repo['id'])
+        except:
+            failed = True
+            rr = 30
+
         # Add header
         with page.body().div(class_="repoHeader"):
             page(repo['id'])
             with page.div(class_="repoTimeStamp"):
+                if failed:
+                    page.img(src="static/img/warning.svg", class_="checkIcon")
                 page(strftime("%H:%M", gmtime()))
 
-        # Get PR data for the repo
-        prs = []
-        try:
-            prs = getPRData(repo['id'])
-        except:
-            with page.body().div():
-                page("Failed to get PR info for this repo.")
-
-        if len(prs):
+        if failed:
+            with page.body().div(class_="repoMessage"):
+                page("Failed to get PR info for this repo. Retrying in 30 seconds...")
+        elif len(prs):
             prDataToHTML(prs, page)
+        else:
+            with page.body().div(class_="repoMessage"):
+                page("No open PRs for this repository.")
 
-    # Need to tweak the generated html slightly to change the string "http_equiv" to "http-equiv" - we couldn't
-    # do this earlier as the '-' is interpreted as a minus in the key.
+    # Need to tweak the generated html slightly to:
+    # - Change the string "http_equiv" to "http-equiv" - we couldn't do this earlier as the '-' is interpreted as a minus in the key.
+    # - Set the actual page refresh time, which depends on the success of retrieving repository data
     html = str(page).replace("http_equiv", "http-equiv")
+    html = html.replace("REFRESHRATE", str(rr))
 
     return html
 
