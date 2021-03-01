@@ -18,7 +18,7 @@ app = flask.Flask(__name__)
 # variable named GITHUB_TOKEN
 gh = Github(config['token'])
 
-def getPRData(userRepo, test=False):
+def parsePRData(userRepo, test=False):
     """Get PR data for a specific user/repo"""
     if test:
         return [ {'number': 516, 'title': 'Protein force fields'}, {'number': 541, 'title': 'Tidy SpeciesIntra Base', 'conclusion': 'failure', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['failure', 'success', 'success', 'success']}}, {'number': 543, 'title': 'Move MasterIntra terms out of lists and into vectors.', 'conclusion': 'success', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Test': ['success', 'success']}}, {'number': 550, 'title': 'UFF', 'conclusion': 'failure', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Test': ['failure']}}]
@@ -164,7 +164,7 @@ def home():
         prs = []
         failed = False
         try:
-            prs = getPRData(repo['id'])
+            prs = parsePRData(repo['id'])
         except:
             failed = True
             rr = 30
