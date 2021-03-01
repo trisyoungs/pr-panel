@@ -58,6 +58,7 @@ body {
 
 .prNumber {
   margin-top: auto;
+  margin-bottom: auto;
 }
 
 .prTitle {
@@ -73,6 +74,7 @@ body {
   height: 1.0em;
   margin-right: 0.1em;
   margin-top: auto;
+  margin-bottom: auto;
 }
 
 .prChecks {
@@ -103,4 +105,5 @@ body {
   height: 1.0em;
   margin-right: 0.1em;
   margin-top: auto;
+  margin-bottom: auto;
 }
