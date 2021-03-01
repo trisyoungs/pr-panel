@@ -21,7 +21,7 @@ gh = Github(config['token'])
 def parsePRData(userRepo, test=False):
     """Get PR data for a specific user/repo"""
     if test:
-        return [{'number': 516, 'title': 'Protein force fields', 'draft': True}, {'number': 555, 'title': 'Range splitter', 'draft': False, 'conclusion': 'failure', 'checks': {'QC': ['failure', 'success', 'success']}}, {'number': 559, 'title': 'EnumOptions Modernisation', 'draft': False, 'conclusion': 'success', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Test': ['success', 'success']}}, {'number': 560, 'title': 'Simplify WindowFunction class', 'draft': True, 'conclusion': 'success', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Test': ['success', 'success']}}]
+        return [{'number': 516, 'title': 'Protein force fields', 'draft': True}, {'number': 555, 'title': 'Range splitter', 'draft': False, 'conclusion': 'failure', 'checks': {'QC': ['failure', 'success', 'success']}, 'reviews': {'comments': 4, 'changesRequested': 1}}, {'number': 559, 'title': 'EnumOptions Modernisation', 'draft': False, 'conclusion': 'success', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Test': ['success', 'success']}, 'reviews': {'approvals': 1}}, {'number': 560, 'title': 'Simplify WindowFunction class', 'draft': True, 'conclusion': 'success', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Test': ['success', 'success']}}]
 
     # Get the specified repo
     repo = gh.get_repo(userRepo)
@@ -70,11 +70,35 @@ def parsePRData(userRepo, test=False):
                     else:
                         checksInfo[stage['name']] = [ status ]
 
-        # Add check run information to the list
+        # Store check run information in the dict
         if checksInfo:
             newInfo["checks"] = checksInfo
-        prInfo.append(newInfo)
 
+        # Get any reviews for this PR
+        reviewInfo = {}
+        approvals = 0
+        comments = 0
+        changesRequested = 0
+        reviews = pr.get_reviews()
+        for r in reviews:
+            if r.state == "APPROVED":
+                approvals += 1
+            elif r.state == "COMMENTED":
+                comments += 1
+            elif r.state == "CHANGES_REQUESTED":
+                changesRequested += 1
+        if approvals > 0:
+            reviewInfo['approvals'] = approvals
+        if comments > 0:
+            reviewInfo['comments'] = comments
+        if changesRequested > 0:
+            reviewInfo['changesRequested'] = changesRequested
+
+        # Store review info in the dict
+        if reviewInfo:
+            newInfo['reviews'] = reviewInfo
+
+        prInfo.append(newInfo)
     return prInfo
 
 def prDataToHTML(prData, page):
@@ -101,7 +125,19 @@ def prDataToHTML(prData, page):
                     if pr['draft']:
                         with page.div(class_="prTitleLabelContainer").div(class_="prTitleLabel grayLabel"):
                             page("DRAFT")
-
+                    if "reviews" in pr:
+                        if "approvals" in pr['reviews']:
+                            with page.div(class_="prTitleLabelContainer").div(class_="prTitleLabel"):
+                                page.img(src="static/img/success.svg", class_="prStatusIcon")
+                                page(pr['reviews']['approvals'])
+                        if "changesRequested" in pr['reviews']:
+                            with page.div(class_="prTitleLabelContainer").div(class_="prTitleLabel"):
+                                page.img(src="static/img/changes.svg", class_="prStatusIcon")
+                                page(pr['reviews']['changesRequested'])
+                        if "comments" in pr['reviews']:
+                            with page.div(class_="prTitleLabelContainer").div(class_="prTitleLabel"):
+                                page.img(src="static/img/comment.svg", class_="prStatusIcon")
+                                page(pr['reviews']['comments'])
 
                 # -- Status Icon
                 with page.div(class_="prStatusContainer"):
