@@ -21,7 +21,7 @@ gh = Github(config['token'])
 def parsePRData(userRepo, test=False):
     """Get PR data for a specific user/repo"""
     if test:
-        return [ {'number': 516, 'title': 'Protein force fields'}, {'number': 541, 'title': 'Tidy SpeciesIntra Base', 'conclusion': 'failure', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['failure', 'success', 'success', 'success']}}, {'number': 543, 'title': 'Move MasterIntra terms out of lists and into vectors.', 'conclusion': 'success', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Test': ['success', 'success']}}, {'number': 550, 'title': 'UFF', 'conclusion': 'failure', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Test': ['failure']}}]
+        return [{'number': 516, 'title': 'Protein force fields', 'draft': True}, {'number': 555, 'title': 'Range splitter', 'draft': False, 'conclusion': 'failure', 'checks': {'QC': ['failure', 'success', 'success']}}, {'number': 559, 'title': 'EnumOptions Modernisation', 'draft': False, 'conclusion': 'success', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Test': ['success', 'success']}}, {'number': 560, 'title': 'Simplify WindowFunction class', 'draft': True, 'conclusion': 'success', 'checks': {'QC': ['success', 'success', 'success'], 'Build': ['success', 'success', 'success', 'success'], 'Test': ['success', 'success']}}]
 
     # Get the specified repo
     repo = gh.get_repo(userRepo)
@@ -40,6 +40,7 @@ def parsePRData(userRepo, test=False):
         newInfo = {}
         newInfo["number"] = pr.number
         newInfo["title"] = pr.title
+        newInfo["draft"] = pr.draft
 
         # Get checks information, and create a simplified representation to store
         checksInfo = {}
@@ -93,9 +94,14 @@ def prDataToHTML(prData, page):
                 with page.div(class_="prNumberContainer").div(class_="prNumber"):
                     page(f"#{pr['number']}")
 
-                # -- Title
+                # -- Title and status labels
                 with page.div(class_="prTitle"):
-                    page(pr['title'])
+                    with page.div(class_="prTitleText"):
+                        page(pr['title'])
+                    if pr['draft']:
+                        with page.div(class_="prTitleLabelContainer").div(class_="prTitleLabel grayLabel"):
+                            page("DRAFT")
+
 
                 # -- Status Icon
                 with page.div(class_="prStatusContainer"):
