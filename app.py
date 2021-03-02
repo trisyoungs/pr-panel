@@ -56,8 +56,11 @@ def parsePRData(userRepo, test=False):
         sleep(sleepInterval)
         for cs in check_suites:
             # Is a general conclusion for the check suite available
-            if cs.conclusion and not "conclusion" in newInfo:
-                newInfo["conclusion"] = cs.conclusion;
+            if not "status" in newInfo:
+                if cs.conclusion:
+                    newInfo["status"] = cs.conclusion
+                elif cs.status == "queued":
+                    newInfo["status"] = "in_progress"
 
             # Extract data from individual check runs
             for cr in cs.get_check_runs():
@@ -150,14 +153,14 @@ def prDataToHTML(prData, page):
 
                 # -- Status Icon
                 with page.div(class_="prStatusContainer"):
-                    if not "conclusion" in pr:
+                    if not "status" in pr:
                         page.img(src="static/img/unknown.svg", class_="prStatusIcon")
-                    elif pr['conclusion'] == "success":
+                    elif pr['status'] == "success":
                         page.img(src="static/img/success.svg", class_="prStatusIcon")
                         showStatusChecks = False
-                    elif pr['conclusion'] == "failure":
+                    elif pr['status'] == "failure":
                         page.img(src="static/img/failure.svg", class_="prStatusIcon")
-                    elif pr['conclusion'] == "in_progress":
+                    elif pr['status'] == "in_progress":
                         page.img(src="static/img/in_progress.svg", class_="prStatusIcon")
                     else:
                         page.div(class_="prStatusIcon iconUnknown")
