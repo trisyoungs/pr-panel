@@ -42,6 +42,10 @@ body {
   padding-top: 5px;
 }
 
+.prlist, li:nth-child(even) {
+  background-color: #f8f8f8;
+}
+
 .prGrid {
   display: grid;
   grid-template-columns: max-content auto max-content;
