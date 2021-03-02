@@ -18,8 +18,7 @@ if 'sleepInterval' in config:
 app = flask.Flask(__name__)
 #app.config["DEBUG"] = True
 
-# Create a Github object with our personal access token which we take from an environment
-# variable named GITHUB_TOKEN
+# Create a Github object with our personal access token
 gh = Github(config['token'])
 
 def parsePRData(userRepo, test=False):
