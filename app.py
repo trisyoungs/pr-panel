@@ -1,7 +1,7 @@
 import flask, re, toml
 from github import Github
 from airium import Airium
-from time import gmtime, strftime
+from time import gmtime, strftime, sleep
 
 # Parse the configuration file and set some values
 config = toml.load('config.toml')
@@ -9,6 +9,10 @@ config = toml.load('config.toml')
 refreshRate = 300
 if 'refreshRate' in config:
     refreshRate = config['refreshRate']
+# -- Rate Limit Sleep Timeout
+sleepInterval = 1.1
+if 'sleepInterval' in config:
+    sleepInterval = config['sleepInterval']
 
 # Create our Flask app
 app = flask.Flask(__name__)
@@ -25,9 +29,11 @@ def parsePRData(userRepo, test=False):
 
     # Get the specified repo
     repo = gh.get_repo(userRepo)
+    sleep(sleepInterval)
 
     # Obtain PR info for this repo, and extract the info we want
     pulls = repo.get_pulls(state='open', sort='created', direction='asc', base='develop')
+    sleep(sleepInterval)
 
     # If there are no open PRs, can exit now without appending anything to the list
     if len(list(pulls)) == 0:
@@ -45,7 +51,9 @@ def parsePRData(userRepo, test=False):
         # Get checks information, and create a simplified representation to store
         checksInfo = {}
         last_commit = [commit for commit in pr.get_commits()][-1]
+        sleep(sleepInterval)
         check_suites = last_commit.get_check_suites()
+        sleep(sleepInterval)
         for cs in check_suites:
             # Is a general conclusion for the check suite available
             if cs.conclusion and not "conclusion" in newInfo:
@@ -80,6 +88,7 @@ def parsePRData(userRepo, test=False):
         comments = 0
         changesRequested = 0
         reviews = pr.get_reviews()
+        sleep(sleepInterval)
         for r in reviews:
             if r.state == "APPROVED":
                 approvals += 1
