@@ -54,12 +54,13 @@ def parsePRData(userRepo, test=False):
         check_suites = last_commit.get_check_suites()
         sleep(sleepInterval)
         for cs in check_suites:
-            # Is a general conclusion for the check suite available
-            if not "status" in newInfo:
-                if cs.conclusion:
-                    newInfo["status"] = cs.conclusion
-                elif cs.status == "queued":
-                    newInfo["status"] = "in_progress"
+            # Update the overall state of the PR's check suite(s) here
+            # -- If the check suite status is "queued" or "in_progress", then we are still running
+            if cs.status == "queued" or cs.status == "in_progress":
+                newInfo["status"] = "in_progress"
+            elif cs.status == "completed":
+                # Take the overall status of the check suite as the result
+                newInfo["status"] = cs.conclusion
 
             # Extract data from individual check runs
             for cr in cs.get_check_runs():
@@ -152,17 +153,17 @@ def prDataToHTML(prData, page):
 
                 # -- Status Icon
                 with page.div(class_="prStatusContainer"):
-                    if not "status" in pr:
+                    if not "status" in pr or pr['status'] == "neutral":
                         page.img(src="static/img/unknown.svg", class_="prStatusIcon")
                     elif pr['status'] == "success":
                         page.img(src="static/img/success.svg", class_="prStatusIcon")
                         showStatusChecks = False
                     elif pr['status'] == "failure":
                         page.img(src="static/img/failure.svg", class_="prStatusIcon")
-                    elif pr['status'] == "in_progress":
-                        page.img(src="static/img/in_progress.svg", class_="prStatusIcon")
+                    elif pr['status'] == "timed_out":
+                        page.img(src="static/img/timed_out.svg", class_="prStatusIcon")
                     else:
-                        page.div(class_="prStatusIcon iconUnknown")
+                        page.img(src="static/img/unknown.svg", class_="prStatusIcon")
 
                 # Status checks line
                 if showStatusChecks:
