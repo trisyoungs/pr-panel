@@ -1,5 +1,5 @@
 [Unit]
-Description=PR Panel Kiosk
+Description=PR Panel
 Wants=graphical.target
 After=graphical.target
 
