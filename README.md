@@ -20,7 +20,7 @@ Place the following in `/home/pi/.config/lxsession/LXDE-pi/autostart`
 @xset s off
 @xset -dpms
 @xset s noblank
-@chromium-browser --kiosk http://localhost:5000
+@chromium-browser --kiosk --disable-cache --disk-cache-dir=/dev/null --disk-cache-size=1 --app=http://localhost:5000
 ````
 
 This will disable power management of the screen, prevent the screensaver from starting, and run the Chromium browser in kiosk mode, pointing it to the Flask server started by the `pr-panel` service.
