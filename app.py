@@ -155,6 +155,8 @@ def prDataToHTML(prData, page):
                 with page.div(class_="prStatusContainer"):
                     if not "status" in pr or pr['status'] == "neutral":
                         page.img(src="static/img/unknown.svg", class_="prStatusIcon")
+                    elif pr['status'] == "in_progress":
+                        page.img(src="static/img/in_progress.svg", class_="prStatusIcon")
                     elif pr['status'] == "success":
                         page.img(src="static/img/success.svg", class_="prStatusIcon")
                         showStatusChecks = False
