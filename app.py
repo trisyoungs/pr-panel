@@ -55,12 +55,14 @@ def parsePRData(userRepo, test=False):
         sleep(sleepInterval)
         for cs in check_suites:
             # Update the overall state of the PR's check suite(s) here
-            # -- If the check suite status is "queued" or "in_progress", then we are still running
-            if cs.status == "queued" or cs.status == "in_progress":
-                newInfo["status"] = "in_progress"
-            elif cs.status == "completed":
-                # Take the overall status of the check suite as the result
-                newInfo["status"] = cs.conclusion
+            # -- If there is no conclusion there is no definitive status info
+            if cs.conclusion:
+                # -- If the check suite status is "queued" or "in_progress", then we are still running
+                if cs.status == "queued" or cs.status == "in_progress":
+                    newInfo["status"] = "in_progress"
+                elif cs.status == "completed":
+                    # Take the overall status of the check suite as the result
+                    newInfo["status"] = cs.conclusion
 
             # Extract data from individual check runs
             for cr in cs.get_check_runs():
