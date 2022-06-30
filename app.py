@@ -188,7 +188,7 @@ def prDataToHTML(prData, page):
                                         if result == "queued":
                                             page.img(src="static/img/queued.svg", class_="checkIcon")
                                         elif result == "in_progress":
-                                            page.img(src="static/img/in_progress.svg", class_="checkIcon")
+                                            page.img(src="static/img/in_progress.svg", class_="checkIcon rotating")
                                         elif result == "skipped":
                                             page.img(src="static/img/skipped.svg", class_="checkIcon")
                                         elif result == "success":
