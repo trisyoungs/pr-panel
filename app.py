@@ -63,6 +63,8 @@ def parsePRData(userRepo, test=False):
                 elif cs.status == "completed":
                     # Take the overall status of the check suite as the result
                     newInfo["status"] = cs.conclusion
+            elif "status" not in newInfo and cs.status == "queued":
+                newInfo["status"] = "in_progress"
 
             # Extract data from individual check runs
             for cr in cs.get_check_runs():
